@@ -1,0 +1,65 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: veterinaria_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - backend_net
+    # NOTA: NO se publica el puerto 5432 hacia el host/Internet.
+    # Solo es accesible desde dentro de backend_net.
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: veterinaria_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - frontend_net
+      - backend_net
+    # Puerto interno 8000, solo accesible por Nginx via frontend_net
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: veterinaria_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - frontend_net
+
+  adminer:
+    image: adminer:latest
+    container_name: veterinaria_adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"   # Solo para desarrollo local; quitar/proteger en producción
+    networks:
+      - backend_net
+    depends_on:
+      - postgres
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
