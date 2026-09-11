@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db, Base, engine
-from app.api import auth, usuarios, clientes
+from app.api import auth, usuarios, clientes, roles
 
 # Se importan los modelos para que SQLAlchemy los registre en Base.metadata
 from app.models import rol, usuario  # noqa: F401
@@ -12,6 +12,16 @@ app = FastAPI(
     title="Veterinaria API",
     description="Sistema de gestión para una veterinaria - Proyecto académico",
     version="0.1.0",
+)
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -55,3 +65,4 @@ def health_check_db(db: Session = Depends(get_db)):
 app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(clientes.router)
+app.include_router(roles.router)
