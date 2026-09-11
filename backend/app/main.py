@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db, Base, engine
-from app.api import auth, usuarios
+from app.api import auth, usuarios, clientes
 
 # Se importan los modelos para que SQLAlchemy los registre en Base.metadata
 from app.models import rol, usuario  # noqa: F401
@@ -54,3 +54,4 @@ def health_check_db(db: Session = Depends(get_db)):
 
 app.include_router(auth.router)
 app.include_router(usuarios.router)
+app.include_router(clientes.router)
