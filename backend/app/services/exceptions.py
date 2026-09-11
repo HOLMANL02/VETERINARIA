@@ -12,3 +12,10 @@ class CorreoYaRegistradoError(Exception):
 
 class TokenInvalidoError(Exception):
     """El token JWT es inválido, expiró o no es del tipo esperado."""
+
+class ClienteNoEncontradoError(Exception):
+    """No existe un cliente con el id solicitado."""
+
+
+class ClienteConMascotasError(Exception):
+    """No se puede eliminar un cliente que todavía tiene mascotas asociadas (RF-05)."""
